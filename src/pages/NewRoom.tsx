@@ -1,15 +1,33 @@
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 import IllustrationImg from "../assets/images/illustration.svg";
 import logoImg from "../assets/images/logo.svg";
 import "../styles/auth.scss";
 import { Button } from "../components/Button";
-import { useEffect } from "react";
-import { auth } from "../services/firebase";
+import React, { useEffect, useState } from "react";
+import { auth, database } from "../services/firebase";
 import { useAuth } from "../hooks/useAuth";
 
 export const NewRoom = () => {
-  const { user, setUser } = useAuth(); // useContext(AuthContext);
+  const { user, setUser } = useAuth();
+  const [newRoom, setNewRoom] = useState("");
+  const history = useHistory();
+
+  const handleCreateRoom = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (newRoom.trim() === "") {
+      return;
+    }
+    // reference for a register in the database. Here, we are creating a block called rooms, to which we are pushing an object.
+    const roomRef = database.ref("rooms");
+    const firebaseRoom = await roomRef.push({
+      title: newRoom,
+      authorId: user?.id,
+    });
+
+    history.push(`/rooms/${firebaseRoom.key}`);
+  };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((oldUser) => {
@@ -43,9 +61,14 @@ export const NewRoom = () => {
         <div className="main-content">
           <img src={logoImg} alt="Logo Letmeask" />
           <h1>{user?.displayName}</h1>
-          <form>
+          <form onSubmit={handleCreateRoom}>
             <h2>Criar uma nova sala</h2>
-            <input type="text" placeholder="Digite o código da sala" />
+            <input
+              type="text"
+              value={newRoom}
+              onChange={(event) => setNewRoom(event.target.value)}
+              placeholder="Digite o código da sala"
+            />
             <Button type="submit">Criar sala</Button>
           </form>
           <p>
