@@ -34,6 +34,11 @@ export const Home = () => {
       return;
     }
 
+    if (roomRef.val().endedAt) {
+      alert("Parece que essa sala já foi encerrada :T");
+      return;
+    }
+
     history.push(`rooms/${roomCode}`);
   };
 
