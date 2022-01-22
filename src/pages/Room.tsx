@@ -103,6 +103,8 @@ export const Room = () => {
               key={question.id}
               author={question.author}
               content={question.content}
+              isHighlighted={question.isHighlighted}
+              isAnswered={question.isAnswered}
             >
               <button
                 className={`like-button ${question.likeId ? "liked" : ""}`}
